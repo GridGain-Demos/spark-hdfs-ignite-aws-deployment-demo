@@ -1,4 +1,4 @@
-## How to use current solution
+## How to automate AWS deployment for testing Apache Ignite/GridGain with Spark and HDFS
 ----------------------------------
 
 Current scripts and projects were created for the quick provisioning of the AWS hosts that includes:
