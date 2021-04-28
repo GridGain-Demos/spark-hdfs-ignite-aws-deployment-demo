@@ -1,0 +1,15 @@
+[Unit]
+Description=SPARK Standalone Master Service
+After=network.target
+After=systemd-user-sessions.service
+After=network-online.target
+
+[Service]
+Type=forking
+User={{ gridgain_rw_user }}
+ExecStart={{ spark_home }}/sbin/start-master.sh
+ExecStop={{ spark_home }}/sbin/stop-master.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

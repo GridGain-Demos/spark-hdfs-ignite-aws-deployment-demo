@@ -1,0 +1,20 @@
+---
+- name: Install unzip
+  become: yes
+  yum: 
+    name: unzip 
+    state: latest
+
+- name: Install nano
+  become: yes
+  yum: 
+    name: nano 
+    state: latest
+
+- name: Install prerequisite for SELinux Ansible module
+  become: true
+  package:
+    name:
+      - libselinux-python
+      - libsemanage-python
+    state: present

@@ -1,0 +1,16 @@
+[Unit]
+Description=HDFS Namenode Service
+After=network.target
+
+[Service]
+Type=forking
+Environment=HADOOP_HOME={{ hadoop_home }}
+Environment=HADOOP_CONF_DIR={{ hadoop_conf_dir }}
+Environment=HADOOP_LOG_DIR={{ hadoop_log_dir }}
+User="{{ gridgain_rw_user }}"
+ExecStart={{ hadoop_home }}/bin/hdfs --config $HADOOP_CONF_DIR --daemon start namenode
+ExecStop={{ hadoop_home }}/bin/hdfs --config $HADOOP_CONF_DIR --daemon stop namenode
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

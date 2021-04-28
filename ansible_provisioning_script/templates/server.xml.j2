@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/util
+       http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+    <bean id="grid.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
+        <property name="workDirectory" value="{{ gridgain_work_path }}"/>
+        <property name="failureDetectionTimeout" value="30000"/>
+        <property name="peerClassLoadingEnabled" value="true"/>
+
+        <property name="communicationSpi">
+            <bean class="org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi">
+                <property name="localPort" value="47100"/>
+                <property name="localPortRange" value="10"/>
+                <property name="socketWriteTimeout" value="5000"/>
+            </bean>
+        </property>
+
+        <property name="igniteInstanceName" value="gg_node"/>
+
+        <property name="dataStorageConfiguration">
+            <bean class="org.apache.ignite.configuration.DataStorageConfiguration">
+                <property name="metricsEnabled" value="true"/>
+                <property name="walMode" value="LOG_ONLY"/>
+                <property name="defaultDataRegionConfiguration">
+                    <bean class="org.apache.ignite.configuration.DataRegionConfiguration">
+                        <property name="metricsEnabled" value="true"/>
+                        <property name="maxSize" value="536870912"/>
+                        <property name="checkpointPageBufferSize" value="134217728"/>
+                        <property name="persistenceEnabled" value="true"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+
+        <property name="cacheConfiguration">
+            <list>
+                <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                    <property name="name" value="Person"/>
+                    <property name="cacheMode" value="PARTITIONED"/>
+                    <property name="atomicityMode" value="ATOMIC"/>
+                    <property name="sqlSchema" value="PUBLIC"/>
+                    <property name="keyConfiguration">
+                        <list>
+                            <bean class="org.apache.ignite.cache.CacheKeyConfiguration">
+                                <property name="typeName" value="PersonKey"/>
+                                <property name="affinityKeyFieldName" value="companyId"/>
+                            </bean>
+                        </list>
+                    </property>
+                    <property name="queryEntities">
+                        <list>
+                            <bean class="org.apache.ignite.cache.QueryEntity">
+                                <property name="keyType" value="PersonKey"/>
+                                <property name="valueType" value="Person"/>
+                                <property name="tableName" value="Person"/>
+
+                                <property name="keyFields">
+                                    <list>
+                                        <value>id</value>
+                                        <value>companyId</value>
+                                    </list>
+                                </property>
+
+                                <property name="fields">
+                                    <map>
+                                        <entry key="id" value="java.lang.Long"/>
+                                        <entry key="city" value="java.lang.String"/>
+                                        <entry key="firstname" value="java.lang.String"/>
+                                        <entry key="age" value="java.lang.Long"/>
+                                        <entry key="companyId" value="java.lang.Long"/>
+                                        <entry key="secondname" value="java.lang.String"/>
+                                        <entry key="hiredDate" value="java.lang.String"/>
+                                    </map>
+                                </property>
+
+                                <property name="indexes">
+                                    <list>
+                                        <bean class="org.apache.ignite.cache.QueryIndex">
+                                            <constructor-arg value="companyId"/>
+                                        </bean>
+                                    </list>
+                                </property>
+                            </bean>
+                        </list>
+                    </property>
+                </bean>
+                <bean class="org.apache.ignite.configuration.CacheConfiguration">
+                    <property name="name" value="Company"/>
+                    <property name="cacheMode" value="PARTITIONED"/>
+                    <property name="atomicityMode" value="ATOMIC"/>
+                    <property name="sqlSchema" value="PUBLIC"/>
+                    <property name="queryEntities">
+                        <list>
+                            <bean class="org.apache.ignite.cache.QueryEntity">
+                                <property name="keyType" value="java.lang.Long"/>
+                                <property name="valueType" value="Company"/>
+                                <property name="tableName" value="Company"/>
+
+                                <property name="keyFieldName">
+                                    <value>id</value>
+                                </property>
+
+                                <property name="fields">
+                                    <map>
+                                        <entry key="id" value="java.lang.Long"/>
+                                        <entry key="companyName" value="java.lang.String"/>
+                                        <entry key="socialNumber" value="java.lang.String"/>
+                                    </map>
+                                </property>
+                            </bean>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+
+        <property name="discoverySpi">
+            <bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">
+                <property name="localPort" value="47500"/>
+                <property name="localPortRange" value="10"/>
+                <property name="ipFinder">
+                    <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.elb.TcpDiscoveryElbIpFinder">
+                        <property name="credentialsProvider">
+                            <bean class="com.amazonaws.auth.AWSStaticCredentialsProvider">
+                                <constructor-arg ref="aws.creds"/>
+                            </bean>
+                        </property>
+                        <property name="region" value="{{ ec2_region }}"/>
+                        <property name="loadBalancerName" value="{{ ec2_elb_name }}"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <!-- AWS credentials. Provide your access key ID and secret access key. -->
+    <bean id="aws.creds" class="com.amazonaws.auth.BasicAWSCredentials">
+        <constructor-arg value="{{ ec2_access_key }}"/>
+        <constructor-arg value="{{ ec2_secret_key }}"/>
+    </bean>
+</beans>

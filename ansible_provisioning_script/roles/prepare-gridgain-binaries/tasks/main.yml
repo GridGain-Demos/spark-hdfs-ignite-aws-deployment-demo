@@ -1,0 +1,121 @@
+---
+- name: Check the gridgain binaries archive path
+  become: yes
+  stat:
+    path: "{{ local_binaries_archive_path }}"
+  register: gg_binary_state
+
+- debug:
+    msg: "{{ 'Binaries archive does not exist - ' + local_binaries_archive_path }}"
+  when: gg_binary_state.stat.exists == False
+
+- debug:
+    msg: "{{ 'Binaries archive exists - ' + local_binaries_archive_path }}"
+  when: gg_binary_state.stat.exists
+
+- name: Download remote gridgain binaries
+  become: yes
+  get_url:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    url: "{{ gridgain_download_link }}"
+    dest: "{{ gridgain_binaries_path }}"
+    mode: 0777
+  when: gg_binary_state.stat.exists == False
+
+- name: Check the gridgain binaries folder
+  become: yes
+  stat:
+    path: "{{ local_binaries_folder_path }}"
+  register: gg_binary_folder_state
+
+- debug:
+    msg: "{{ 'Binaries folder does not exist - ' + local_binaries_folder_path }}"
+  when: gg_binary_folder_state.stat.exists == False
+
+- debug:
+    msg: "{{ 'Binaries folder exists - ' + local_binaries_folder_path }}"
+  when: gg_binary_folder_state.stat.exists
+
+- name: Remove old binaries
+  become: yes
+  file:
+    path: "{{ local_binaries_folder_path }}/"
+    state: absent
+  when: gg_binary_folder_state.stat.exists
+
+- name: Unarchive a gridgain binaries
+  become: yes
+  unarchive:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: "{{ local_binaries_archive_path }}"
+    dest: "{{ gridgain_binaries_path }}"
+    mode: 'o-rwx'
+    remote_src: yes
+
+- name: Move new binaries to latest
+  become: yes
+  command: "{{ 'mv ' + local_binaries_folder_path_new + ' ' + local_binaries_folder_path }}"
+
+- name: Copy optional modules to libs
+  become: yes
+  copy:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: "{{ local_binaries_folder_path + '/libs/optional/' + item }}"
+    dest: "{{ local_binaries_folder_path + '/libs/' }}"
+    remote_src: yes
+    directory_mode: yes
+  loop:
+    - ignite-rest-http
+    - ignite-log4j2
+    - ignite-spark-2.4
+
+- name: Copy ignite-aws from optional to libs
+  become: yes
+  copy:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: "{{ local_binaries_folder_path + '/libs/optional/ignite-aws' }}"
+    dest: "{{ local_binaries_folder_path + '/libs/' }}"
+    remote_src: yes
+    directory_mode: yes
+
+- name: Copy start script to remote (AWS)
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: start_gridgain_server.sh.j2
+    dest: "{{ gridgain_scripts + '/start_gridgain_server.sh' }}"
+    mode: 0777
+  tags: config
+
+- name: Copy stop script to remote (AWS)
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: stop_gridgain_server.sh.j2
+    dest: "{{ gridgain_scripts + '/stop_gridgain_server.sh' }}"
+    mode: 0777
+  tags: config
+
+- name: Copy server.xml to remote
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: server.xml.j2
+    dest: "{{ gridgain_config_path + '/server.xml' }}"
+    mode: 0777
+  tags: config
+
+- name: Ensure IGNITE_HOME variable
+  become: yes
+  template:
+    src: ignite_home.sh.j2
+    dest: /etc/profile.d/ignite_home.sh
+    mode: 0777
+  tags: config

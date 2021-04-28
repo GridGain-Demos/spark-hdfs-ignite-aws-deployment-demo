@@ -1,0 +1,13 @@
+spark.master.rest.enabled     false
+spark.eventLog.enabled        true
+spark.eventLog.dir            file://{{ spark_events_dir }}
+spark.serializer org.apache.spark.serializer.KryoSerializer
+spark.driver.memory 1g
+spark.executor.extraJavaOptions -XX:+AggressiveOpts -XX:+AlwaysPreTouch -XX:+UseG1GC -XX:+ScavengeBeforeFullGC -XX:-DisableExplicitGC -Djava.net.preferIPv4Stack=true -XX:MaxGCPauseMillis=1500
+spark.executor.memory 1g
+spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version 2
+spark.hadoop.mapreduce.fileoutputcommitter.cleanup-failures.ignored true
+spark.hadoop.parquet.enable.summary-metadata false
+spark.sql.parquet.mergeSchema false
+spark.sql.parquet.filterPushdown true
+

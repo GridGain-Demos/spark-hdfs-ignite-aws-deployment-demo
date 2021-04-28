@@ -1,0 +1,16 @@
+---
+#name for security group for our cluster
+security_group_name: "spark-webinar-security-group"
+
+#name for VPC subnet for our cluster
+security_subnet_name: "spark-webinar-subnet-name"
+
+#Chose CIDRs for GG network
+#These CIDRs mush be a part of default VPC IP Range
+#For example:
+#If your VPC IP Range is 172.31.0.0/16 you can use IP subnets from 172.31.0.0 to 172.31.255.254
+#GG Host CIDR
+gg_host_cidr: "172.31.100.0/24"
+
+#search your external IP and set here
+my_cidr: "195.144.253.150/24"

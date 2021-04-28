@@ -1,0 +1,75 @@
+---
+- name: Check the HDFS binaries archive path
+  become: yes
+  stat:
+    path: "{{ download }}/{{ file }}"
+  register: hdsf_binary_state
+
+- debug:
+    msg: "{{ download }}/{{ file }} don't exist"
+  when: hdsf_binary_state.stat.exists == False
+
+- debug:
+    msg: "{{ download }}/{{ file }} exist"
+  when: hdsf_binary_state.stat.exists
+
+- name: Download remote gridgain binaries
+  become: yes
+  get_url:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    url: "{{ url }}"
+    dest: "{{ download }}/{{ file }}"
+    mode: 0777
+  when: hdsf_binary_state.stat.exists == False
+
+- name: Check the hdfs binaries folder
+  become: yes
+  stat:
+    path: "{{ usr_local }}/{{ hadoop }}"
+  register: hdsf_binary_folder_state
+
+- debug:
+    msg: "{{ usr_local }}/{{ hadoop }} don't exist"
+  when: hdsf_binary_folder_state.stat.exists == False
+
+- debug:
+    msg: "{{ usr_local }}/{{ hadoop }} exist"
+  when: hdsf_binary_folder_state.stat.exists
+
+- name: Remove old binaries
+  become: yes
+  file:
+    path: "{{ usr_local }}/{{ hadoop }}/"
+    state: absent
+  when: hdsf_binary_folder_state.stat.exists
+
+- name: Unarchive a hdfs binaries
+  become: yes
+  unarchive:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: "{{ download }}/{{ file }}"
+    dest: "{{ usr_local }}"
+    creates: "{{ hadoop_home }}"
+    mode: 0777
+    remote_src: yes
+
+- name: link {{ hadoop }} to {{ usr_local }}/hadoop
+  become: yes
+  file:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: "{{ hadoop }}"
+    dest: "{{ usr_local }}/hadoop"
+    mode: 0777
+    state: link
+
+- name: create {{ hadoop_log_dir }}
+  become: yes
+  file:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    path: "{{ hadoop_log_dir }}"
+    state: directory
+    mode: 0777

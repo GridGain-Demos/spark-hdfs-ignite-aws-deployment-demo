@@ -1,0 +1,17 @@
+[Unit]
+Description=YARN service
+After=network.target
+Wants=yarn-resourcemanager.service
+
+[Service]
+Environment=HADOOP_HOME={{ hadoop_home }}
+Environment=HADOOP_CONF_DIR={{ hadoop_conf_dir }}
+Environment=HADOOP_LOG_DIR={{ hadoop_log_dir }}
+Type=forking
+User="{{ gridgain_rw_user }}"
+ExecStart={{ hadoop_home }}/bin/yarn --config $HADOOP_CONF_DIR --daemon start nodemanager
+ExecStop={{ hadoop_home }}/bin/yarn --config $HADOOP_CONF_DIR --daemon stop nodemanager
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

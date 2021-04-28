@@ -1,0 +1,52 @@
+---
+- hosts: launched
+  gather_facts: True
+  vars_files:
+    - group_vars/user_credentals
+    - group_vars/common_settings
+  vars:
+    ansible_ssh_private_key_file: "{{ ssh_root_private_key_file }}"
+    ansible_user: "{{ gridgain_rw_user }}"
+    version: "3.2.1"
+    hadoop: "hadoop-{{ version }}"
+    file: "{{ hadoop }}.tar.gz"
+    url: "https://apache-mirror.rbc.ru/pub/apache/hadoop/common/{{ hadoop }}/{{ file }}"
+    hadoop_home: "{{ usr_local }}/{{ hadoop }}"
+    hadoop_conf_dir: "{{ hadoop_home }}/etc/hadoop"
+    hadoop_log_dir: "/var/log"
+    download: "/home/{{ gridgain_rw_user }}"
+    usr_local: "/usr/local"
+    etc_profiles: "/etc/profile.d"
+    system_units: "/etc/systemd/system"
+  roles:
+    - role: update_system
+    - role: configure_hdfs
+
+- hosts: launched
+  gather_facts: True
+  vars_files:
+    - group_vars/user_credentals
+    - group_vars/common_settings
+  vars:
+    ansible_ssh_private_key_file: "{{ ssh_root_private_key_file }}"
+    ansible_user: "{{ gridgain_rw_user }}"
+    hadoop_version: "3.2.1"
+    spark_version: "2.4.4"
+    hadoop: "hadoop-{{ hadoop_version }}"
+    spark: "spark-{{ spark_version }}-bin-without-hadoop"
+    file: "{{ spark }}.tgz"
+    url: "https://archive.apache.org/dist/spark/spark-{{ spark_version }}/{{ file }}"
+    hadoop_home: "{{ usr_local }}/{{ hadoop }}"
+    hadoop_conf_dir: "{{ hadoop_home }}/etc/hadoop"
+    hadoop_log_dir: "/var/log"
+    spark_home: "{{ usr_local }}/{{ spark }}"
+    spark_conf_dir: "{{ spark_home }}/conf"
+    spark_log_dir: "/var/log"
+    spark_worker_dir: "{{ spark_home }}/work"
+    spark_events_dir: "/home/{{ gridgain_rw_user }}/spark-events"
+    download: "/home/{{ gridgain_rw_user }}"
+    usr_local: "/usr/local"
+    etc_profiles: "/etc/profile.d"
+    system_units: "/etc/systemd/system"
+  roles:
+    - role: configure_spark

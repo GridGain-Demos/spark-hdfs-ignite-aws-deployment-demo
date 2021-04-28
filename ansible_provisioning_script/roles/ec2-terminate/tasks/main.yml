@@ -1,0 +1,49 @@
+---
+- ec2_instance_info:
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    region: "{{ ec2_region }}"
+    filters:
+      key-name: "{{ ec2_key_name }}"
+      tag:Name: "{{ ec2_instance_tags }}"
+  register: all_instances
+
+- name: Show debug information about all nodes
+  debug:
+    msg: Debug information for running AWS Instances -> ID = {{ item.instance_id }} KeyName = {{ item.key_name }}
+  loop: "{{ all_instances.instances }}"
+
+- ec2_instance_info:
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    region: "{{ ec2_region }}"
+    filters:
+      instance-state-name: "running"
+      key-name: "{{ ec2_key_name }}"
+      tag:Name: "{{ ec2_instance_tags }}"
+  register: running_instances 
+
+- name: Remove each running terminated EC2 instance from the ELB
+  ec2_elb:
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    state: absent
+    ec2_elbs: "{{ ec2_elb_name }}"
+    region: "{{ ec2_region }}"
+    instance_id: "{{ item.instance_id }}"
+  with_items: "{{ running_instances.instances }}"
+  ignore_errors: yes
+  when: ec2_elb_create == 'true'
+
+- name: Terminate all instances
+  ec2:
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    key_name: "{{ ec2_key_name }}"
+    region: "{{ ec2_region }}"
+    instance_tags:
+        Name: "{{ ec2_instance_tags }}"    
+    instance_ids: '{{ item.instance_id }}'
+    state: absent
+    wait: True
+  loop: "{{ all_instances.instances }}"

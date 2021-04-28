@@ -1,0 +1,3 @@
+#!/bin/bash
+
+spark-submit --master spark://master:7077 --class test.SparkHDFSLoaderMultithreaded ./loader_with_dep.jar hdfs://master:9000/ 1000 10000

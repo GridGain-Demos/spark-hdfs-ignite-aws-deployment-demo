@@ -1,0 +1,15 @@
+---
+- name: Create gridgain directories if do not exist
+  become: yes
+  file:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    path: "{{ item }}"
+    state: directory
+    mode: 0777
+  loop:
+    - "{{ gridgain_work_path }}"
+    - "{{ gridgain_scripts }}"
+    - "{{ gridgain_binaries_path }}"
+    - "{{ gridgain_root_path }}"
+    - "{{ gridgain_config_path }}"

@@ -1,0 +1,29 @@
+---
+#remote gridgain root path
+gridgain_root_path: /opt/gridgain
+
+#remote gridgain binaries path
+gridgain_binaries_path: /opt/gridgain/binaries
+
+#remote gridgain uploads folder
+gridgain_uploads_path: /opt/gridgain/uploads
+
+#remote gridgain config path
+gridgain_config_path: /opt/gridgain/config
+
+#remote gridgain working directory path
+gridgain_work_path: /opt/gridgain/work
+
+#remote monitoring scripts path
+gridgain_scripts: /opt/gridgain/scripts
+
+#product type {community, community-nolgpl, enterprise, enterprise-nolgpl, ultimate}
+product_type: community
+
+#product version (should be greater then 8.7.3)
+product_version: 8.8.3
+
+#download link: name of archive should be standart gridgain-{product_type}-{product_version}.zip
+#  remote: HTTP, HTTPS, or FTP - The remote server must have direct access to the remote resource.
+#  local: copies a file from the local to a location on the remote machine. Should be a local absolute path.
+gridgain_download_link: https://gridgain.com/media/gridgain-community-8.8.3.zip

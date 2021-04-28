@@ -1,0 +1,9 @@
+Host master
+  HostName {{ master }}
+  User {{ gridgain_rw_user }}
+  IdentityFile ~/{{ gridgain_rw_private_key_short }}
+
+Host slave-01
+  HostName {{ slave_1 }}
+  User {{ gridgain_rw_user }}
+  IdentityFile ~/{{ gridgain_rw_private_key_short }}

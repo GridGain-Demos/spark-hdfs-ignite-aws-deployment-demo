@@ -1,0 +1,24 @@
+################################################################################
+# HADOOP
+################################################################################
+export HADOOP_HOME={{ hadoop_home }}
+export HADOOP_CONF_DIR={{ hadoop_conf_dir }}
+export HADOOP_LOG_DIR={{ hadoop_log_dir }}
+
+################################################################################
+# SPARK
+################################################################################
+export SPARK_HOME={{ spark_home }}
+export SPARK_CONF_DIR={{ spark_conf_dir }}
+export SPARK_LOG_DIR={{ spark_log_dir }}
+
+export SPARK_DIST_CLASSPATH=$({{ hadoop_home }}/bin/hadoop classpath):{{ spark_conf_dir }}
+export SPARK_PUBLIC_DNS={{ inventory_hostname }}
+export SPARK_WORKER_DIR={{ spark_worker_dir }}
+
+################################################################################
+# PATHs
+################################################################################
+export PATH=${HADOOP_HOME}/bin:${HADOOP_HOME}/sbin:${PATH}
+export PATH=${SPARK_HOME}/bin:${SPARK_HOME}/sbin:${PATH}
+export LD_LIBRARY_PATH="$HADOOP_HOME/lib/native/:$LD_LIBRARY_PATH"

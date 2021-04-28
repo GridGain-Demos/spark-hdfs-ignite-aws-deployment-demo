@@ -1,0 +1,15 @@
+[Unit]
+Description=SPARK Standalone Slave Service
+After=network.target
+After=systemd-user-sessions.service
+After=network-online.target
+
+[Service]
+Type=forking
+User={{ gridgain_rw_user }}
+ExecStart={{ spark_home }}/sbin/start-slave.sh spark://master:7077
+ExecStop={{ spark_home }}/sbin/stop-slave.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

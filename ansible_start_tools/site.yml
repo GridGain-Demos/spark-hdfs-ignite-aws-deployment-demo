@@ -1,0 +1,31 @@
+#---
+#- hosts: launched
+#  gather_facts: True
+#  vars_files:
+#    - group_vars/cloud_credentials
+#    - group_vars/common_settings
+#  vars:
+#    ansible_ssh_private_key_file: "{{ ssh_root_private_key_file }}"
+#    ansible_user: "{{ gridgain_rw_user }}"
+#    version: "3.2.1"
+#    usr_local: "/usr/local"
+#    hadoop: "hadoop-{{ version }}"
+#    hadoop_home: "{{ usr_local }}/{{ hadoop }}"
+#  roles:
+#    - role: start_hdfs
+
+- hosts: launched
+  gather_facts: True
+  vars_files:
+    - group_vars/cloud_credentials
+    - group_vars/common_settings
+  vars:
+    ansible_ssh_private_key_file: "{{ ssh_root_private_key_file }}"
+    ansible_user: "{{ gridgain_rw_user }}"
+    spark_version: "2.4.4"
+    spark: "spark-{{ spark_version }}-bin-without-hadoop"
+    spark_home: "{{ usr_local }}/{{ spark }}"
+    usr_local: "/usr/local"
+  roles:
+#    - role: start_spark
+    - role: start_ignite

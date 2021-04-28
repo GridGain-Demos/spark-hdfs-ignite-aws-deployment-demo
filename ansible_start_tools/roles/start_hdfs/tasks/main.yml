@@ -1,0 +1,6 @@
+---
+- name: format hdfs
+  command: "{{ hadoop_home}}/bin/hdfs namenode -format"
+
+- name: start hdfs
+  command: "{{ hadoop_home}}/sbin/start-all.sh"

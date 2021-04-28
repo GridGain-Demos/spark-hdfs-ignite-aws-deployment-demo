@@ -1,0 +1,49 @@
+---
+- name: generate {{ hadoop_conf_dir }} config.j2 files
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: "{{ item }}.j2"
+    dest: "{{ hadoop_conf_dir }}/{{ item }}"
+    mode: 0777
+  with_items:
+    - core-site.xml
+    - hdfs-site.xml
+    - yarn-site.xml
+
+- name: Copy ssh configuration file
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: workers.j2
+    dest: "{{ hadoop_home}}/etc/hadoop/workers"
+    mode: 0777
+
+- name: generate hadoop.sh in profile.d
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: hadoop.sh.j2
+    dest: "{{ etc_profiles }}/hadoop.sh"
+    mode: 0777
+
+- name: copy persons.csv file to home
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: persons.csv.j2
+    dest: "/home/{{ gridgain_rw_user }}/persons.csv"
+    mode: 0777
+
+- name: Remove geronimo-jcache_1.0_spec-1.0-alpha-1.jar
+  become: yes
+  file:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    path: /usr/local/hadoop/share/hadoop/yarn/lib/geronimo-jcache_1.0_spec-1.0-alpha-1.jar
+    state: absent
+    mode: 0777

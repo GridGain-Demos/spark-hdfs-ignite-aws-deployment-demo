@@ -1,0 +1,18 @@
+---
+- name: create a VPC subnet for GG
+  ec2_vpc_subnet:
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    tags:
+      Name: "{{ security_subnet_name }}"
+    region: "{{ ec2_region }}"
+    az: "{{ ec2_zone }}"
+    state: present
+    vpc_id: "{{ ec2_default_vpc }}"
+    cidr: "{{ gg_host_cidr }}"
+    wait: yes
+  register: gg_host_subnet
+
+- name: Show debug information about GG subnet
+  debug:
+    msg: Debug information VPCs -> ID = {{ gg_host_subnet.subnet.id }}

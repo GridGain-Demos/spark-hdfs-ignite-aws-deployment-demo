@@ -1,0 +1,20 @@
+#!/bin/bash
+
+PIDFILE=/run/{{ gridgain_rw_user }}/gridgain.pid
+
+PID=$(<"${PIDFILE}")
+
+if [[ -z ${PID} ]]; then
+    echo "GridGain cluster is not running"
+    exit 1
+fi
+
+kill ${PID}
+
+while [ -e /proc/${PID} ]
+do
+    echo "GridGain Server process id ${PID} is still running"
+    sleep .6
+done
+
+echo "GridGain Server process id ${PID} was terminated."

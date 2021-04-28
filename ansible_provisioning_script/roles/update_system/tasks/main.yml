@@ -1,0 +1,97 @@
+---
+- name: Upload examples jar
+  become: yes
+  copy:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: "{{ examples_jar }}"
+    dest: "/home/{{ gridgain_rw_user }}/loader_with_dep.jar"
+    mode: 0777
+
+- name: Copy example1
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: example_1_load_data_to_hdfs.sh.j2
+    dest: "/home/{{ gridgain_rw_user }}/example_1_load_data_to_hdfs.sh"
+    mode: 0777
+
+- name: Copy example2
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: example_2_load_data_from_hdfs_to_ignite.sh.j2
+    dest: "/home/{{ gridgain_rw_user }}/example_2_load_data_from_hdfs_to_ignite.sh"
+    mode: 0777
+
+- name: Copy example3
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: example_3_read_data_from_ignite.sh.j2
+    dest: "/home/{{ gridgain_rw_user }}/example_3_read_data_from_ignite.sh"
+    mode: 0777
+
+- name: Copy example4
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: example_4_read_data_from_spark_ignite.sh.j2
+    dest: "/home/{{ gridgain_rw_user }}/example_4_read_data_from_spark_ignite.sh"
+    mode: 0777
+
+- name: Copy example5
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: example_5_read_caches_data_spark.sh.j2
+    dest: "/home/{{ gridgain_rw_user }}/example_5_read_caches_data_spark.sh"
+    mode: 0777
+
+- name: Copy example6
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: example_6_read_data_from_hdfs.sh.j2
+    dest: "/home/{{ gridgain_rw_user }}/example_6_read_data_from_hdfs.sh"
+    mode: 0777
+
+- name: Disable SELinux at next reboot
+  become: true
+  selinux:
+    state: disabled
+
+- name: disable ipv6
+  become: yes
+  template:
+    src: disableipv6.conf.j2
+    dest: "/etc/sysctl.d/disableipv6.conf"
+
+- name: Delete first line in /etc/hosts
+  become: yes
+  lineinfile:
+    dest: /etc/hosts
+    state: absent
+    regexp: '^127\.0\.0\.1\s[ms]'
+
+- name: Delete ipv6 in /etc/hosts
+  become: yes
+  lineinfile:
+    dest: /etc/hosts
+    state: absent
+    regexp: '^\:\:1'
+
+- name: Allow cluster interaction
+  become: true
+  copy:
+    dest: /etc/hosts.allow
+    content: |
+      #
+      ALL : ALL
+      #

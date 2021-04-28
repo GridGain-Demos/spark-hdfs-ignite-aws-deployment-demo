@@ -1,0 +1,13 @@
+[Unit]
+Description=SPARK history service
+After=network.target
+
+[Service]
+Type=forking
+User={{ gridgain_rw_user }}
+ExecStart={{ spark_home }}/sbin/start-history-server.sh
+ExecStop={{ spark_home }}/sbin/stop-history-server.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

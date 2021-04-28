@@ -1,0 +1,9 @@
+- hosts: localhost
+  gather_facts: False
+  vars_files:
+    - group_vars/common_settings
+    - group_vars/aws_settings
+    - group_vars/cloud_credentials
+  roles:
+    - role: ec2-create-vpcs
+    - role: ec2-create-security-groups

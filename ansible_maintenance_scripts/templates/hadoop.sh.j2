@@ -1,0 +1,7 @@
+export PATH={{ usr_local }}/hadoop/bin:{{ usr_local }}/hadoop/sbin:$PATH
+export HADOOP_HOME={{ usr_local }}/hadoop
+export HADOOP_CONF_DIR={{ hadoop_conf_dir }}
+export HADOOP_LOG_DIR={{ hadoop_log_dir }}
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export HADOOP_OPTS="$HADOOP_OPTS -Djava.library.path=$HADOOP_COMMON_LIB_NATIVE_DIR"
+export JAVA_LIBRARY_PATH=$HADOOP_COMMON_LIB_NATIVE_DIR:$JAVA_LIBRARY_PATH

@@ -1,0 +1,78 @@
+---
+- name: Ensure gridgain groups exists
+  become: yes
+  group:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - "{{ gridgain_rw_group }}"
+
+- name: Ensure gridgain users exists
+  become: yes
+  user:
+    name: "{{ item.user }}"
+    shell: /bin/bash
+    group: "{{ item.group }}"
+    state: present
+  register: user_created
+  loop:
+    - { user: "{{ gridgain_rw_user }}", group: "{{ gridgain_rw_group }}" }
+
+- name: sudo without password
+  become: yes
+  copy:
+    content: "%{{ gridgain_rw_group }} ALL=(ALL:ALL) NOPASSWD:ALL"
+    dest: "/etc/sudoers.d/{{ gridgain_rw_group }}_nopasswd"
+    mode: 0440
+
+- name: Set ulimits for gridgain user
+  become: yes
+  pam_limits:
+    domain: "{{ gridgain_rw_user }}"
+    limit_item: "{{ item.item }}"
+    limit_type: "{{ item.type }}"
+    use_max: yes
+    value: 65536
+  loop:
+    - { item: 'nofile', type: 'soft' }
+    - { item: 'nofile', type: 'hard' }
+    - { item: 'nproc', type: 'soft' }
+    - { item: 'nproc', type: 'hard' }
+
+- name: Set ulimits for root user
+  become: yes
+  pam_limits:
+    domain: root
+    limit_item: "{{ item.item }}"
+    limit_type: "{{ item.type }}"
+    use_max: yes
+    value: 65536
+  loop:
+    - { item: 'nofile', type: 'soft' }
+    - { item: 'nofile', type: 'hard' }
+    - { item: 'nproc', type: 'soft' }
+    - { item: 'nproc', type: 'hard' }
+
+- name: Copy private key for internal SSH
+  become: yes
+  copy:
+    src: "{{ gridgain_rw_private_key }}"
+    dest: "/home/{{ gridgain_rw_user }}/{{ gridgain_rw_private_key_short }}"
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    mode: '0400'
+
+- name: Deploy SSH Key
+  become: yes
+  authorized_key:
+    user: "{{ item.user }}"
+    key: "{{ lookup('file', item.key) }}"
+    state: present
+  loop:
+    - { user: "{{ gridgain_rw_user }}", key: "{{ gridgain_rw_user_pubkey }}" }
+
+- name: Restart ssh
+  become: yes
+  service:
+    name: sshd
+    state: restarted

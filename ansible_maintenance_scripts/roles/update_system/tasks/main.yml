@@ -1,0 +1,24 @@
+---
+- name: Copy ssh configuration file
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: config.j2
+    dest: "/home/{{ gridgain_rw_user }}/.ssh/config"
+    mode: 0400
+
+- name: Copy ssh configuration file
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: hosts.j2
+    dest: "/etc/hosts"
+    mode: 0777
+
+- name: Restart ssh
+  become: yes
+  service:
+    name: sshd
+    state: restarted

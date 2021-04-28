@@ -1,0 +1,39 @@
+---
+- name: Create GG security group
+  ec2_group:
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    name: "{{ security_group_name }}"
+    description: "security group allow all on required ports"
+    vpc_id: "{{ ec2_default_vpc }}"
+    region: "{{ ec2_region }}"
+    rules:
+      - proto: tcp
+        ports:
+        - 22
+        - 8080
+        - 8081
+        - 9870
+        - 9864
+        cidr_ip: "{{ my_cidr }}"
+        rule_desc: "allow all on required ports"
+  register: gg_host_sg
+
+- name: allow all traffic for the GG security group
+  ec2_group:
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    name: "{{ security_group_name }}"
+    description: "security group allow all on required ports"
+    vpc_id: "{{ ec2_default_vpc }}"
+    region: "{{ ec2_region }}"
+    purge_rules: no
+    rules:
+      - proto: all
+        group_name: "{{ gg_host_sg.group_id }}"
+        rule_desc: "allow all inside GG security group"
+  register: gg_host_sg
+
+- name: Show debug information about the GG security group
+  debug:
+    msg: Debug information created SGs -> ID = {{ gg_host_sg.group_id }}

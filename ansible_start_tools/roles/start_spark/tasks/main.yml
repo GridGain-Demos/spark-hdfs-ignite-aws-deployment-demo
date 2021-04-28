@@ -1,0 +1,3 @@
+---
+- name: start spark
+  command: "{{ spark_home }}/sbin/start-all.sh"

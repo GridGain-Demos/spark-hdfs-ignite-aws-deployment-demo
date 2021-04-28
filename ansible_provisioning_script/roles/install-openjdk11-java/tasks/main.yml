@@ -1,0 +1,37 @@
+---
+- name: Install OpenJDK Java 11
+  become: yes
+  yum: 
+    name: ['java-11-openjdk-devel', 'java-11-openjdk'] 
+    state: latest
+  register: java_installed
+
+- name: correct java version selected
+  become: yes
+  alternatives:
+    name: java
+    path: "{{ java_jdk_path }}"
+    link: /usr/bin/java
+  when: java_installed is changed 
+
+- name: Ensure java profile
+  become: yes
+  template:
+    src: java.sh.j2
+    dest: /etc/profile.d/java.sh
+    mode: 0644
+  tags: config
+  when: java_installed is changed
+
+- name: Fetch current Java version
+  become: yes
+  shell: java -version 2>&1 | grep version | awk '{print $3}' | sed 's/"//g' 
+  register: java_version_value
+  check_mode: no
+
+- name: Print current java version
+  debug:
+    msg: Java 11 was installed and set as default - {{ item.stdout }}
+  when: java_version_value is changed
+  with_items: 
+      - "{{ java_version_value }}"

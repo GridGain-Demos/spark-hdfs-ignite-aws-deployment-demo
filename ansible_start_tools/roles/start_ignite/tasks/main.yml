@@ -1,0 +1,10 @@
+---
+- name: start ignite
+  shell: "nohup /opt/gridgain/scripts/start_gridgain_server.sh &"
+
+- name: Sleep for 60bash ./stop  seconds and continue with play
+  wait_for:
+    timeout: 60
+
+- name: activate ignite
+  shell: "/opt/gridgain/binaries/latest/bin/control.sh --activate"

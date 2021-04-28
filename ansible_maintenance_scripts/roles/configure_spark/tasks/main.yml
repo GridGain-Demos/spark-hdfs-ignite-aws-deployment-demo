@@ -1,0 +1,80 @@
+---
+- name: copy client.xml file to home
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: client.xml.j2
+    dest: "/home/{{ gridgain_rw_user }}/client.xml"
+    mode: 0777
+
+- name: copy run script file to home
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: run.sh.j2
+    dest: "/home/{{ gridgain_rw_user }}/run.sh"
+    mode: 0777
+
+- name: link {{ spark }} to {{ usr_local }}/spark
+  become: yes
+  file:
+    src: "{{ usr_local }}/{{ spark }}"
+    dest: "{{ usr_local }}/spark"
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    state: link
+    mode: 0777
+
+- name: create directories
+  become: yes
+  file:
+    path: "{{ item }}"
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    mode: 0777
+    state: directory
+  with_items:
+    - "{{ spark_conf_dir }}"
+    - "{{ spark_events_dir }}"
+    - "{{ spark_log_dir }}"
+    - "{{ spark_worker_dir }}"
+    - "/home/{{ gridgain_rw_user }}/libs"
+
+- name: generate {{ spark_conf_dir }} config.j2 files
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: "{{ item }}.j2"
+    dest: "{{ spark_conf_dir }}/{{ item }}"
+    mode: 0777
+  with_items:
+    - fairscheduler.xml
+    - log4j.properties
+    - metrics.properties
+    - spark-defaults.conf
+    - spark-env.sh
+    - slaves
+
+- name: generate spark.sh in profile.d
+  become: yes
+  template:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: spark.sh.j2
+    dest: "{{ etc_profiles }}/spark.sh"
+    mode: 0777
+
+- name: symlink to slf4j-*
+  file:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: /usr/local/hadoop-{{ hadoop_version }}/share/hadoop/common/lib/{{ item }}
+    dest: /usr/local/spark-{{ spark_version }}-bin-without-hadoop/jars/{{ item }}
+    state: link
+    mode: 0777
+  with_items:
+    - slf4j-api-1.7.25.jar
+    - slf4j-log4j12-1.7.25.jar

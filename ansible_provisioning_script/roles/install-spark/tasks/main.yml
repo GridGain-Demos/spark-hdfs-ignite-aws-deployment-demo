@@ -1,0 +1,94 @@
+---
+- name: Check the Spark binaries archive path
+  become: yes
+  stat:
+    path: "{{ download }}/{{ file }}"
+  register: spark_binary_state
+
+- debug:
+    msg: "{{ download }}/{{ file }} don't exist"
+  when: spark_binary_state.stat.exists == False
+
+- debug:
+    msg: "{{ download }}/{{ file }} exist"
+  when: spark_binary_state.stat.exists
+
+- name: Download remote gridgain binaries
+  become: yes
+  get_url:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    url: "{{ url }}"
+    dest: "{{ download }}/{{ file }}"
+    mode: 0777
+  when: spark_binary_state.stat.exists == False
+
+- name: Check the hdfs binaries folder
+  become: yes
+  stat:
+    path: "{{ usr_local }}/{{ spark }}"
+  register: spark_binary_folder_state
+
+- debug:
+    msg: "{{ usr_local }}/{{ spark }} don't exist"
+  when: spark_binary_folder_state.stat.exists == False
+
+- debug:
+    msg: "{{ usr_local }}/{{ spark }} exist"
+  when: spark_binary_folder_state.stat.exists
+
+- name: Remove old binaries
+  become: yes
+  file:
+    path: "{{ usr_local }}/{{ spark }}/"
+    state: absent
+  when: spark_binary_folder_state.stat.exists
+
+- name: Unarchive a spark binaries
+  become: yes
+  unarchive:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: "{{ download }}/{{ file }}"
+    dest: "{{ usr_local }}"
+    creates: "{{ spark_home }}"
+    mode: 0777
+    remote_src: yes
+
+- name: link {{ spark }} to {{ usr_local }}/spark
+  become: yes
+  file:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: "{{ usr_local }}/{{ spark }}"
+    dest: "{{ usr_local }}/spark"
+    mode: 0777
+    state: link
+
+- name: create directories
+  become: yes
+  file:
+    path: "{{ item }}"
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    mode: 0777
+    state: directory
+  with_items:
+    - "{{ spark_conf_dir }}"
+    - "{{ spark_events_dir }}"
+    - "{{ spark_log_dir }}"
+    - "{{ spark_worker_dir }}"
+    - "/home/{{ gridgain_rw_user }}/libs"
+
+- name: symlink to slf4j-*
+  become: yes
+  file:
+    owner: "{{ gridgain_rw_user }}"
+    group: "{{ gridgain_rw_group }}"
+    src: /usr/local/hadoop-{{ hadoop_version }}/share/hadoop/common/lib/{{ item }}
+    dest: /usr/local/spark-{{ spark_version }}-bin-without-hadoop/jars/{{ item }}
+    mode: 0777
+    state: link
+  with_items:
+    - slf4j-api-1.7.25.jar
+    - slf4j-log4j12-1.7.25.jar

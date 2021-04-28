@@ -1,0 +1,10 @@
+---
+#gridgain rw user
+gridgain_rw_user: gg_user
+
+#ssh root key
+ssh_root_private_key_file: ""
+
+#ssh root user
+#  Centos - "centos"
+ssh_root_user: centos

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+spark-submit --master spark://master:7077 --class test.IgniteNativeSqlSelectBenchmark ./loader_with_dep.jar /home/"{{ gridgain_rw_user }}"/client.xml 10 10 1000 5000

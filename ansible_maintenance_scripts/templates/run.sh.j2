@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# build all other dependent jars in EXECUTOR_PATH
+
+LIBS_DIR=$1
+EXAMPLE_CLASS=$2
+PATH_TO_JAR=$3
+JARS=`find $LIBS_DIR -name '*.jar'`
+EXECUTOR_PATH=""
+   for eachjarinlib in $JARS ; do
+if [ "$eachjarinlib" != "ABCDEFGHIJKLMNOPQRSTUVWXYZ.JAR" ]; then
+       EXECUTOR_PATH=$eachjarinlib:$EXECUTOR_PATH
+fi
+done
+JARS_ALL=""
+   for eachjarinlib in $JARS ; do
+if [ "$eachjarinlib" != "ABCDEFGHIJKLMNOPQRSTUVWXYZ.JAR" ]; then
+       JARS_ALL=$eachjarinlib,$JARS_ALL
+fi
+done
+echo spark-submit --deploy-mode "cluster" --master spark://master:7077 --driver-class-path $EXECUTOR_PATH --jars $JARS_ALL --class $EXAMPLE_CLASS $PATH_TO_JAR $4 $5 $6 $7
+spark-submit --master spark://master:7077 --driver-class-path $EXECUTOR_PATH --jars $JARS_ALL --class $EXAMPLE_CLASS $PATH_TO_JAR $4 $5 $6 $7

@@ -1,0 +1,41 @@
+---
+#Use internal or public IPs for software installation
+use_internal_ips: "false"
+
+#environment type
+#  AWS ec2 - "ec2"
+#  Bare Metal - "baremetal"
+#  GCE - "gce"
+deployment_type: "ec2"
+
+#deploying type {"provision", "terminate"}
+deployment_command: "provision"
+
+#java path:
+java_jdk_path: "/usr/lib/jvm/java-1.8.0-openjdk/bin/java"
+
+#ssh root key
+ssh_root_private_key_file: ""
+
+#ssh root user
+#  Centos - "centos"
+ssh_root_user: centos
+
+#gridgain rw user to be created
+gridgain_rw_user: gg_user
+
+#gridgain rw user group to be created
+gridgain_rw_group: gg_group
+
+#gridgain rw user public key path for gridgain private key
+#  example command - ssh-keygen -y -f ~/.ssh/id_rsa.pem > ./id_rsa.pub
+gridgain_rw_user_pubkey: files/gridgain_key.pub
+
+#ssh gridgain rw key
+gridgain_rw_private_key: ""
+
+#ssh gridgain rw key
+gridgain_rw_private_key_short: ""
+
+#examples jar
+examples_jar: "files/spark-examples.jar"

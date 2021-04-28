@@ -1,0 +1,24 @@
+#!/bin/bash
+
+if [ "${IGNITE_HOME}" = "" ];
+    then export IGNITE_HOME="{{ local_binaries_folder_path }}";
+fi
+
+if [ "${JVM_OPTS}" = "" ];
+    then export JVM_OPTS="-Xms1g -Xmx1g -server -XX:+UseG1GC -DIGNITE_WAL_MMAP=false -XX:+AggressiveOpts -XX:MaxPermSize=256m -DIGNITE_WAIT_FOR_BACKUPS_ON_SHUTDOWN=true -Djava.net.preferIPv4Stack=true -XX:MaxDirectMemorySize=128m -XX:MaxGCPauseMillis=1000";
+fi
+
+if [ "${JAVA_HOME}" = "" ];
+    then export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::");
+fi
+
+if [ "${CONFIG_PATH}" = "" ];
+    then export CONFIG_PATH="{{ gridgain_config_path }}/server.xml";
+fi
+
+echo IGNITE_HOME=${IGNITE_HOME}
+echo JVM_OPTS=${JVM_OPTS}
+echo JAVA_HOME=${JAVA_HOME}
+echo CONFIG_PATH=${CONFIG_PATH}
+
+bash ${IGNITE_HOME}/bin/ignite.sh -v ${CONFIG_PATH}
