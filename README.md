@@ -156,7 +156,7 @@ You should add `exIP1` in `ansible_start_tools/production` file as:
 ```
 Also you should add `intIP1` to `master` property and `intIP2` in `slave` property in the `ansible_maintenance_scripts/group_vars/common_settings`.
 
-Now you can run thirs script - `setup_tools.sh`. After that you can run fourth script - `start_all_tools.sh`.
+Now you can run third script - `setup_tools.sh`. After that you can run fourth script - `start_all_tools.sh`.
 
 If everything was completed without error then you should be able to open UI using the following ports - 8080 (spark master),8081 (spark workers),9870 (hdfs namenode),9864 (hdfs datanodes).
 
